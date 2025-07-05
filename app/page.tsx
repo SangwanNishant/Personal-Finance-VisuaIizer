@@ -124,7 +124,7 @@ export default function Home() {
             <div className="space-y-6">
               {showForm ? (
                 <TransactionForm
-                  transaction={editingTransaction}
+                  transaction={editingTransaction ?? undefined}
                   onSubmit={handleFormSubmit}
                   onCancel={handleFormCancel}
                 />
