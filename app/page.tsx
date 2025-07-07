@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TransactionForm } from '@/components/transaction-form';
 import { TransactionList } from '@/components/transaction-list';
@@ -14,23 +13,22 @@ import { DashboardSummary } from '@/components/dashboard-summary';
 import { SpendingInsights } from '@/components/spending-insights';
 import { Transaction } from '@/types/finance';
 import { storage } from '@/lib/storage';
-import { 
-  calculateMonthlyData, 
-  calculateCategorySpending, 
-  calculateBudgetComparison, 
-  getCurrentMonth 
+import {
+  calculateMonthlyData,
+  calculateCategorySpending,
+  calculateBudgetComparison,
+  getCurrentMonth
 } from '@/lib/finance-utils';
-import { Plus, BarChart3, PieChart, Target, Home, List, TrendingUp, Wallet } from 'lucide-react';
+import { Plus, BarChart3, Target, Home, List, TrendingUp, Wallet } from 'lucide-react';
 
 export default function HomePage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showTransactionForm, setShowTransactionForm] = useState(false);
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | undefined>(undefined);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Only load data on client side
     if (typeof window !== 'undefined') {
       loadTransactions();
       setIsLoaded(true);
@@ -51,7 +49,7 @@ export default function HomePage() {
       }
     });
     setShowTransactionForm(false);
-    setEditingTransaction(null);
+    setEditingTransaction(undefined);
   };
 
   const handleTransactionEdit = (transaction: Transaction) => {
@@ -68,10 +66,9 @@ export default function HomePage() {
 
   const handleFormCancel = () => {
     setShowTransactionForm(false);
-    setEditingTransaction(null);
+    setEditingTransaction(undefined);
   };
 
-  // Don't render until client-side hydration is complete
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
@@ -94,7 +91,6 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Header */}
         <div className="mb-10">
           <div className="flex items-center space-x-4 mb-4">
             <div className="p-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg">
@@ -112,38 +108,23 @@ export default function HomePage() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-2 shadow-lg border border-white/20">
             <TabsList className="grid w-full grid-cols-5 bg-transparent gap-2">
-              <TabsTrigger 
-                value="dashboard" 
-                className="flex items-center space-x-2 data-[state=active]:bg-white data-[state=active]:shadow-md rounded-xl py-3 px-4 transition-all duration-200"
-              >
+              <TabsTrigger value="dashboard" className="tab-btn">
                 <Home className="h-4 w-4" />
                 <span className="font-medium">Dashboard</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="transactions" 
-                className="flex items-center space-x-2 data-[state=active]:bg-white data-[state=active]:shadow-md rounded-xl py-3 px-4 transition-all duration-200"
-              >
+              <TabsTrigger value="transactions" className="tab-btn">
                 <List className="h-4 w-4" />
                 <span className="font-medium">Transactions</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="charts" 
-                className="flex items-center space-x-2 data-[state=active]:bg-white data-[state=active]:shadow-md rounded-xl py-3 px-4 transition-all duration-200"
-              >
+              <TabsTrigger value="charts" className="tab-btn">
                 <BarChart3 className="h-4 w-4" />
                 <span className="font-medium">Analytics</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="budgets" 
-                className="flex items-center space-x-2 data-[state=active]:bg-white data-[state=active]:shadow-md rounded-xl py-3 px-4 transition-all duration-200"
-              >
+              <TabsTrigger value="budgets" className="tab-btn">
                 <Target className="h-4 w-4" />
                 <span className="font-medium">Budgets</span>
               </TabsTrigger>
-              <TabsTrigger 
-                value="insights" 
-                className="flex items-center space-x-2 data-[state=active]:bg-white data-[state=active]:shadow-md rounded-xl py-3 px-4 transition-all duration-200"
-              >
+              <TabsTrigger value="insights" className="tab-btn">
                 <TrendingUp className="h-4 w-4" />
                 <span className="font-medium">Insights</span>
               </TabsTrigger>
@@ -153,17 +134,12 @@ export default function HomePage() {
           <TabsContent value="dashboard" className="space-y-8">
             <div className="flex justify-between items-center">
               <h2 className="text-3xl font-bold text-gray-800">Financial Overview</h2>
-              <Button 
-                onClick={() => setShowTransactionForm(true)} 
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-xl"
-              >
+              <Button onClick={() => setShowTransactionForm(true)} className="add-btn">
                 <Plus className="h-5 w-5 mr-2" />
                 <span className="font-medium">Add Transaction</span>
               </Button>
             </div>
-
             <DashboardSummary transactions={transactions} />
-
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
               <MonthlyExpensesChart data={monthlyData} />
               {categorySpending.length > 0 && (
@@ -175,15 +151,11 @@ export default function HomePage() {
           <TabsContent value="transactions" className="space-y-8">
             <div className="flex justify-between items-center">
               <h2 className="text-3xl font-bold text-gray-800">Transaction Management</h2>
-              <Button 
-                onClick={() => setShowTransactionForm(true)} 
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-6 py-3 rounded-xl"
-              >
+              <Button onClick={() => setShowTransactionForm(true)} className="add-btn">
                 <Plus className="h-5 w-5 mr-2" />
                 <span className="font-medium">Add Transaction</span>
               </Button>
             </div>
-
             <TransactionList
               transactions={transactions}
               onEdit={handleTransactionEdit}
@@ -194,7 +166,6 @@ export default function HomePage() {
 
           <TabsContent value="charts" className="space-y-8">
             <h2 className="text-3xl font-bold text-gray-800">Financial Analytics</h2>
-            
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
               <MonthlyExpensesChart data={monthlyData} />
               {categorySpending.length > 0 && (
@@ -205,7 +176,6 @@ export default function HomePage() {
 
           <TabsContent value="budgets" className="space-y-8">
             <h2 className="text-3xl font-bold text-gray-800">Budget Planning</h2>
-            
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
               <BudgetManager onUpdate={loadTransactions} />
               {budgetComparison.length > 0 && (
